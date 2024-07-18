@@ -59,15 +59,13 @@ const Logout = async (req, res, next) => {
     next(new CustomError(500, "Internel server error"));
   }
 };
-
 // when access token is expired then we get new access token using refresh token
 const RefreshToken = asyncHandler(async (req, res, next) => {
-  const { refreshToken } = req.cookies;
+  const { refreshToken } = req.body;
 
   if (!refreshToken) {
-    return next(new CustomError(401, "Please Login again"));
+    return next(new CustomError(401, "Please Login Again"));
   }
-
   const refreshTokenDocument = await Token.findOne({ refreshToken });
   if (!refreshTokenDocument) {
     return next(new CustomError(400, "Please Login Again"));
@@ -75,13 +73,12 @@ const RefreshToken = asyncHandler(async (req, res, next) => {
 
   const decodedToken = decodeRefreshToken(refreshTokenDocument.refreshToken);
   if (!decodedToken) {
-    return next(new CustomError(400, "Please Login Again"));
+    return next(new CustomError(400, "Please login again"));
   }
-
   const user = await User.findById(decodedToken.id);
 
-  if (!user) return next(new CustomError(400, "Please Login Again"));
-  sendToken(user, res, "New Token Sent Successfully", 200);
+  if (!user) return next(new CustomError(400, "Please login again"));
+  sendToken(user, res, "New Token Sent Successfully");
 });
 
 const user = (req, res, next) => {
